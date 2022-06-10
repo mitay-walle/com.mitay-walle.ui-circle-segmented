@@ -3,6 +3,7 @@ Custom graphic for uGUI, circle splitted to segments
 
 ![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/Inspector_preview.png)
 ![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/samples_animated.gif)
+![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/wheel_select.gif)
 # Features
 - UPM Package
 - fill floating
