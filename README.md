@@ -27,3 +27,5 @@ Border Mode
 - GC-free
 - Handle / Inverted Handle Fill ( Select Wheel )
 - border / outline mode
+# TODO
+- fix (unify) outline width
