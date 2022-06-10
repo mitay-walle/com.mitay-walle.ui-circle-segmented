@@ -44,6 +44,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 		[Range(1, 360), SerializeField] private int m_SegmentsCount = 360;
 		[Range(1, 360), SerializeField] private int m_SegmentsPerSpriteCount = 1;
 		[SerializeField, Range(-10, 10)] private float m_segmentDegreeOffset;
+		[SerializeField, Range(0,5)] private float m_border;
 		[SerializeField] private UnityEngine.Gradient m_Gradient = CreateDefaultValidGradient();
 		[SerializeField] private UnityEngine.Gradient m_Diagonal_Gradient = CreateDefaultValidGradient();
 		[SerializeField, Range(-360, 360)] private float m_GradientDegreeOffset;
@@ -188,7 +189,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 				
 				if (isOneStepSegment)
 				{
-					DrawSegment(currentDegrees, nextDegrees, outer, inner, vh, 0, 1, segmentFill);
+					DrawSegment(currentDegrees, nextDegrees, outer, inner, vh, 0, 1, m_border>0,segmentFill);
 				}
 				else
 				{
@@ -221,7 +222,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 
 						float uvStart = (float)j / m_SegmentsPerSpriteCount;
 						float uvEnd = (float)(j + 1) / m_SegmentsPerSpriteCount;
-						DrawSegment(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, subSegmentT);
+						DrawSegment(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, m_border>0, subSegmentT);
 						degreesStart += degreesDelta;
 						degreesEnd += degreesDelta;
 					}
@@ -245,6 +246,26 @@ namespace mitaywalle.UICircleSegmentedNamespace
 			return m_Gradient.Evaluate(t) * m_Diagonal_Gradient.Evaluate(t2) * color;
 		}
 
+		protected void DrawSegment(float degreesStart, float degreesEnd, float outer, float inner, VertexHelper vh, float uvStart, float uvEnd,bool wireframe, float t = 1)
+		{
+			if (!wireframe)
+			{
+				DrawSegment(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, t);
+			}
+			else
+			{
+				if (uvStart == 0)
+				{
+					DrawSegment(degreesStart, degreesStart+m_border, outer+m_border, inner-m_border, vh, 0, 1, t);
+				}
+				if (uvEnd == 1)
+				{
+					DrawSegment(degreesEnd-m_border, degreesEnd, outer+m_border, inner-m_border, vh, 0, 1, t);
+				}
+				DrawSegment(degreesStart, degreesEnd, outer, outer+m_border, vh, uvStart, uvEnd, t);
+				DrawSegment(degreesStart, degreesEnd, inner-m_border, inner, vh, uvStart, uvEnd, t);
+			}
+		}
 		protected void DrawSegment(float degreesStart, float degreesEnd, float outer, float inner, VertexHelper vh, float uvStart, float uvEnd, float t = 1)
 		{
 			_positionsTemp[0] = DataToPosition(outer, degreesStart);
