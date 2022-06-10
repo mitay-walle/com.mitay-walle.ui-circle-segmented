@@ -19,6 +19,8 @@ Border Mode
 - fill floating
 - fill per-sprite-segment
 - fill per-vertex
+- fill Handle (selected segment only)
+- fill Handle Inverted (all except selected segment)
 - skip offset
 - intersecting (overlapping) segments
 - sprite round
