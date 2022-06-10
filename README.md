@@ -15,6 +15,7 @@ Custom graphic for uGUI, circle splitted to segments
 - rotate offset
 - round gradient
 - GC-free
+- Handle / Inverted Handle Fill ( Select Wheel )
 
 # TODO
-- Handle / Inverted Handle Fill ( Select Wheel )
+- border / outline mode
