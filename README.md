@@ -4,6 +4,7 @@ Custom graphic for uGUI, circle splitted to segments
 ![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/Inspector_preview.png)
 ![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/samples_animated.gif)
 ![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/wheel_select.gif)
+![](https://github.com/mitay-walle/Unity3d-UICircleSegmented/blob/master/Documentation/border%20example.png)
 # Features
 - UPM Package
 - fill floating
@@ -16,6 +17,4 @@ Custom graphic for uGUI, circle splitted to segments
 - round gradient
 - GC-free
 - Handle / Inverted Handle Fill ( Select Wheel )
-
-# TODO
 - border / outline mode
