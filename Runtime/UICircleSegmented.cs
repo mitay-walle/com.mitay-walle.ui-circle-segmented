@@ -1,8 +1,23 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace mitaywalle.UICircleSegmentedNamespace
 {
+	public enum eFillPattern
+	{
+		Default,
+		Handle,
+		HandleInverted,
+	}
+	
+	public enum eFillDeep
+	{
+		Floating,
+		PerVertex,
+		PerSegment,
+	}
+
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UICircleSegmented : MaskableGraphic
 	{
@@ -22,8 +37,8 @@ namespace mitaywalle.UICircleSegmentedNamespace
 		[SerializeField] private float m_thickness = 5;
 		[Range(0, 1), SerializeField] private float m_FillAmount = 1;
 		[SerializeField] private bool m_invertFill;
-		[SerializeField] private bool m_fillLastSprite = true;
-		[SerializeField] private bool m_fillLastSegment = true;
+		[SerializeField] private eFillPattern m_fillPattern;
+		[SerializeField] private eFillDeep m_fillDeep;
 		[SerializeField, Range(-360, 360)] private float m_GlobalDegreeOffset;
 		[SerializeField, Range(1, 360)] private float m_MaxDegree = 360;
 		[Range(1, 360), SerializeField] private int m_SegmentsCount = 360;
@@ -92,14 +107,54 @@ namespace mitaywalle.UICircleSegmentedNamespace
 				degreeOffset -= m_MaxDegree;
 			}
 
-			visibleSegmentsCount = Mathf.CeilToInt(m_SegmentsCount * fill);
+			bool hasPreviousSegments;
+			bool hasNextSegments;
+			bool hasHandleSegment;
+			float visibleFill;
+
+			switch (m_fillPattern)
+			{
+
+				case eFillPattern.Default:
+					{
+						hasPreviousSegments = true;
+						hasNextSegments = false;
+						hasHandleSegment = true;
+						visibleFill = fill;
+						break;
+					}
+				case eFillPattern.Handle:
+					{
+						hasPreviousSegments = false;
+						hasNextSegments = false;
+						hasHandleSegment = true;
+						visibleFill = fill;
+						break;
+					}
+				case eFillPattern.HandleInverted:
+					{
+						hasPreviousSegments = true;
+						hasNextSegments = true;
+						hasHandleSegment = false;
+						visibleFill = 1;
+						break;
+					}
+				default:
+					{
+						throw new ArgumentOutOfRangeException();
+					}
+			}
+
+
+			visibleSegmentsCount = Mathf.CeilToInt(m_SegmentsCount * visibleFill);
 
 			_uvTemp[0] = _defaultUV[0];
 			_uvTemp[1] = _defaultUV[1];
 			_uvTemp[2] = _defaultUV[2];
 			_uvTemp[3] = _defaultUV[3];
 
-			lastSegmentT = m_FillAmount * m_SegmentsCount;
+			int lastSegmentIndex = Mathf.FloorToInt(m_SegmentsCount * fill);
+			lastSegmentT = fill * m_SegmentsCount;
 			if (lastSegmentT % 1 != 0)
 			{
 				lastSegmentT -= Mathf.FloorToInt(lastSegmentT);
@@ -109,29 +164,35 @@ namespace mitaywalle.UICircleSegmentedNamespace
 				lastSegmentT = 1;
 			}
 
-			float currentDegrees = 0;
+			bool isFillFloating = m_fillDeep == eFillDeep.Floating;
+			bool isFillPerVertex = m_fillDeep == eFillDeep.PerVertex || m_fillDeep == eFillDeep.Floating;
+			
             #endregion
 
 			for (int i = 0; i < visibleSegmentsCount; i++)
 			{
-				bool isLast = i == visibleSegmentsCount - 1;
+				bool isLast = i == lastSegmentIndex;
 				bool isOneStepSegment = m_SegmentsPerSpriteCount == 1;
 				float segmentFill = 1;
-				currentDegrees = i * degreesPerSegment + degreeOffset - m_segmentDegreeOffset / 2;
+				float currentDegrees = i * degreesPerSegment + degreeOffset - m_segmentDegreeOffset / 2;
 				float nextDegrees = (i + 1) * degreesPerSegment + degreeOffset + m_segmentDegreeOffset / 2;
 
-				if (m_fillLastSegment && isLast)
+				if (isFillFloating && isLast)
 				{
 					segmentFill = lastSegmentT;
 				}
 
+				if (!hasPreviousSegments && i < lastSegmentIndex) continue;
+				if (!hasNextSegments && i > lastSegmentIndex) continue;
+				if (!hasHandleSegment && isLast) continue;
+				
 				if (isOneStepSegment)
 				{
 					DrawSegment(currentDegrees, nextDegrees, outer, inner, vh, 0, 1, segmentFill);
 				}
 				else
 				{
-					int subSegmentCount = !isLast || !m_fillLastSprite ? m_SegmentsPerSpriteCount : Mathf.CeilToInt(m_SegmentsPerSpriteCount * lastSegmentT);
+					int subSegmentCount = !isLast || !isFillPerVertex ? m_SegmentsPerSpriteCount : Mathf.CeilToInt(m_SegmentsPerSpriteCount * lastSegmentT);
 
 					float degreesStart = currentDegrees;
 					float degreesDelta = (nextDegrees - currentDegrees) / m_SegmentsPerSpriteCount;
@@ -153,7 +214,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 						float subSegmentT = 1;
 
 						bool isLastSubSegment = isLast && j == subSegmentCount - 1;
-						if (m_fillLastSegment && isLastSubSegment)
+						if (isFillFloating && isLastSubSegment)
 						{
 							subSegmentT = lastSubSegmentT;
 						}
