@@ -1,16 +1,17 @@
 {
   "name": "com.mitay-walle.ui-circle-segmented",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "UI Circle Segmented",
   "description": "Custom graphic for uGUI\n\nCircle splitted to segments, with \n- skip offset\n- sprite round\n- global offset\n- circle-spaced gradient",
   "unity": "2018.4",
-  "documentationUrl": "https://github.com/mitay-walle/GradientTexture/blob/main/README.md",
-  "licensesUrl": "https://github.com/mitay-walle/GradientTexture/blob/main/LICENSE.md",
+  "documentationUrl": "https://github.com/mitay-walle/Unity3d-UICircleSegmented//blob/main/README.md",
+  "licensesUrl": "https://github.com/mitay-walle/Unity3d-UICircleSegmented//blob/main/LICENSE.md",
   "dependencies": { },
  "keywords": [
-    "Texture",
-    "Procedural",
-    "Gradient"
+    "UI",
+	"uGUI",
+    "Graphic",
+	"Geometry"
   ],
   "author": {
     "name": "mitay-walle",
