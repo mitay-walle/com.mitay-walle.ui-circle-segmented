@@ -27,6 +27,7 @@ Border Mode
 - rotate offset
 - round gradient
 - GC-free
-- border / outline mode
+- unified width border / outline mode
 # TODO
-- fix (unify) outline width
+- border, based on sprite border data
+
