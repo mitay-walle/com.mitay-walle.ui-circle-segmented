@@ -10,7 +10,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 		Handle,
 		HandleInverted,
 	}
-	
+
 	public enum eFillDeep
 	{
 		Floating,
@@ -44,7 +44,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 		[Range(1, 360), SerializeField] private int m_SegmentsCount = 360;
 		[Range(1, 360), SerializeField] private int m_SegmentsPerSpriteCount = 1;
 		[SerializeField, Range(-10, 10)] private float m_segmentDegreeOffset;
-		[SerializeField, Range(0,5)] private float m_border;
+		[SerializeField, Range(0, 5)] private float m_border;
 		[SerializeField] private UnityEngine.Gradient m_Gradient = CreateDefaultValidGradient();
 		[SerializeField] private UnityEngine.Gradient m_Diagonal_Gradient = CreateDefaultValidGradient();
 		[SerializeField, Range(-360, 360)] private float m_GradientDegreeOffset;
@@ -167,7 +167,6 @@ namespace mitaywalle.UICircleSegmentedNamespace
 
 			bool isFillFloating = m_fillDeep == eFillDeep.Floating;
 			bool isFillPerVertex = m_fillDeep == eFillDeep.PerVertex || m_fillDeep == eFillDeep.Floating;
-			
             #endregion
 
 			for (int i = 0; i < visibleSegmentsCount; i++)
@@ -186,10 +185,10 @@ namespace mitaywalle.UICircleSegmentedNamespace
 				if (!hasPreviousSegments && i < lastSegmentIndex) continue;
 				if (!hasNextSegments && i > lastSegmentIndex) continue;
 				if (!hasHandleSegment && isLast) continue;
-				
+
 				if (isOneStepSegment)
 				{
-					DrawSegment(currentDegrees, nextDegrees, outer, inner, vh, 0, 1, m_border>0,segmentFill);
+					DrawSegment(currentDegrees, nextDegrees, outer, inner, vh, 0, 1, segmentFill);
 				}
 				else
 				{
@@ -222,7 +221,7 @@ namespace mitaywalle.UICircleSegmentedNamespace
 
 						float uvStart = (float)j / m_SegmentsPerSpriteCount;
 						float uvEnd = (float)(j + 1) / m_SegmentsPerSpriteCount;
-						DrawSegment(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, m_border>0, subSegmentT);
+						DrawSegment(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, subSegmentT);
 						degreesStart += degreesDelta;
 						degreesEnd += degreesDelta;
 					}
@@ -246,32 +245,57 @@ namespace mitaywalle.UICircleSegmentedNamespace
 			return m_Gradient.Evaluate(t) * m_Diagonal_Gradient.Evaluate(t2) * color;
 		}
 
-		protected void DrawSegment(float degreesStart, float degreesEnd, float outer, float inner, VertexHelper vh, float uvStart, float uvEnd,bool wireframe, float t = 1)
+		protected void DrawSegment(float degreesStart, float degreesEnd, float outer, float inner, VertexHelper vh, float uvStart, float uvEnd, float t = 1)
 		{
+			bool wireframe = this.m_border > 0;
+
+			// L = 2 * pi * radius * degree / 360
+			// degree = L / pi / radius * 180 
+
+			var borderDegree = -m_border / Mathf.PI / (outer + m_border) * 180;
+			var borderDegreeInner = -m_border / Mathf.PI / (inner - m_border) * 180;
+			float t1 = borderDegreeInner/(degreesEnd-degreesStart);
+			float t2 = borderDegree/(degreesEnd-degreesStart);
+			
 			if (!wireframe)
 			{
-				DrawSegment(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, t);
+				DrawSegmentQuad(degreesStart, degreesEnd, outer, inner, vh, uvStart, uvEnd, t);
 			}
 			else
 			{
 				if (uvStart == 0)
 				{
-					DrawSegment(degreesStart, degreesStart+m_border, outer+m_border, inner-m_border, vh, 0, 1, t);
+					
+					DrawSegmentQuad(degreesStart, degreesEnd, outer + m_border, inner - m_border, vh, 0, 1, t1, t2);
 				}
 				if (uvEnd == 1)
 				{
-					DrawSegment(degreesEnd-m_border, degreesEnd, outer+m_border, inner-m_border, vh, 0, 1, t);
+					DrawSegmentQuad(degreesStart, degreesEnd, outer + m_border, inner - m_border, vh, 0, 1, t1, t2,true);
 				}
-				DrawSegment(degreesStart, degreesEnd, outer, outer+m_border, vh, uvStart, uvEnd, t);
-				DrawSegment(degreesStart, degreesEnd, inner-m_border, inner, vh, uvStart, uvEnd, t);
+				DrawSegmentQuad(degreesStart, degreesEnd, outer, outer + m_border, vh, uvStart, uvEnd, t, degreesEnd);
+				DrawSegmentQuad(degreesStart, degreesEnd, inner - m_border, inner, vh, uvStart, uvEnd, t, degreesEnd);
 			}
 		}
-		protected void DrawSegment(float degreesStart, float degreesEnd, float outer, float inner, VertexHelper vh, float uvStart, float uvEnd, float t = 1)
+		protected void DrawSegmentQuad(float degreesStart, float degreesEnd, float outer, float inner, VertexHelper vh, float uvStart, float uvEnd, float t = 1, float t2 = float.MinValue,bool inverseLerp = false)
 		{
-			_positionsTemp[0] = DataToPosition(outer, degreesStart);
-			_positionsTemp[1] = DataToPosition(inner, degreesStart);
-			_positionsTemp[2] = DataToPosition(inner, _positionsTemp[1], degreesEnd, t);
-			_positionsTemp[3] = DataToPosition(outer, _positionsTemp[0], degreesEnd, t);
+			t2 = t2 == float.MinValue ? t : t2;
+
+			if (inverseLerp)
+			{
+				_positionsTemp[3] = DataToPosition(outer, degreesEnd);
+				_positionsTemp[2] = DataToPosition(inner, degreesEnd);
+				_positionsTemp[1] = DataToPosition(inner, _positionsTemp[2], degreesStart, t);
+				_positionsTemp[0] = DataToPosition(outer, _positionsTemp[3], degreesStart, t2);	
+			}
+			else
+			{
+				_positionsTemp[0] = DataToPosition(outer, degreesStart);
+				_positionsTemp[1] = DataToPosition(inner, degreesStart);
+				_positionsTemp[2] = DataToPosition(inner, _positionsTemp[1], degreesEnd, t);
+				_positionsTemp[3] = DataToPosition(outer, _positionsTemp[0], degreesEnd, t2);
+			}
+			
+
 			uvEnd = Mathf.Lerp(uvStart, uvEnd, t);
 
 			_uvTemp[2] = new Vector2(uvEnd, 0);
