@@ -35,5 +35,5 @@ Border Mode
 - - Gradients
 - - Geometry layers
 - - LayoutGroup
-- - - Segment Pivot
+- - - Layout Segment (stick to segment sides, radius)
 
