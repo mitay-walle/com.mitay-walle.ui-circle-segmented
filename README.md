@@ -35,4 +35,5 @@ Border Mode
 - - Gradients
 - - Geometry layers
 - - LayoutGroup
+- - - SubSegment Pivot
 
