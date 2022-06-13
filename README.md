@@ -28,6 +28,11 @@ Border Mode
 - round gradient
 - GC-free
 - unified width border / outline mode
-# TODO
+# WIP
 - border, based on sprite border data
+- SelectWheel : UI.Selectable
+- Extendable Effects 
+- - Gradients
+- - Geometry layers
+- - LayoutGroup
 
