@@ -31,7 +31,7 @@ Border Mode
 # WIP
 - border, based on sprite border data
 - SelectWheel : UI.Selectable
-- Extendable Effects 
+- Extendable Effect-Components
 - - Gradients
 - - Geometry layers
 - - LayoutGroup
